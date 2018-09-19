@@ -22,7 +22,7 @@ echo "Pull and Tag K8s Images..."
 for s in ${!K8S_SERVER[*]}; do
     v=${K8S_SERVER[${s}]}
     docker pull "${SOURCE}/${s}:${v}"
-    docker tag "${SOURCE}/${s}:${v}" "${TARGET}/${s}:${v}" 
+    docker tag "${SOURCE}/${s}:${v}" "${TARGET}/${s}:${v}"
 done
 
 echo "Pull and Tag Normal Images..."
@@ -30,8 +30,7 @@ echo "Pull and Tag Normal Images..."
 for s in ${!SERVER[*]}; do
     v=${SERVER[${s}]}
     docker pull "${SOURCE}/${s}:${v}"
-    docker tag "${SOURCE}/${s}:${v}" "${s}:${v}" 
-    docker push 
+    docker tag "${SOURCE}/${s}:${v}" "${s}:${v}"
 done
 
 echo "Done !"
