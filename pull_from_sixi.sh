@@ -7,6 +7,7 @@ declare -A K8S_SERVER=(
 ["kube-controller-manager-amd64"]="${K8S_VERSION}"
 ["kube-scheduler-amd64"]="${K8S_VERSION}"
 ["kube-proxy-amd64"]="${K8S_VERSION}"
+["kubernetes-dashboard-amd64"]="v1.10.0"
 ["pause"]="3.1"
 ["etcd-amd64"]="3.2.18"
 ["coredns"]="1.1.3"
