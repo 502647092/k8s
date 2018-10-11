@@ -3,10 +3,10 @@ TARGET='k8s.gcr.io'
 K8S_VERSION='v1.12.1'
 
 declare -A K8S_SERVER=(
-["kube-apiserver-amd64"]="${K8S_VERSION}"
-["kube-controller-manager-amd64"]="${K8S_VERSION}"
-["kube-scheduler-amd64"]="${K8S_VERSION}"
-["kube-proxy-amd64"]="${K8S_VERSION}"
+["kube-apiserver"]="${K8S_VERSION}"
+["kube-controller-manager"]="${K8S_VERSION}"
+["kube-scheduler"]="${K8S_VERSION}"
+["kube-proxy"]="${K8S_VERSION}"
 ["kubernetes-dashboard-amd64"]="v1.10.0"
 ["pause"]="3.1"
 ["etcd-amd64"]="3.2.18"
