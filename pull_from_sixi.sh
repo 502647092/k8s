@@ -1,6 +1,10 @@
-SOURCE='docker.sixi.com'
+SOURCE='registry.sixi.com'
+USERNAME='anonymous'
+PASSWORD='anonymous'
 TARGET='k8s.gcr.io'
 K8S_VERSION='v1.12.1'
+
+docker login ${SOURCE} -u ${USERNAME} -p ${PASSWORD}
 
 declare -A K8S_SERVER=(
 ["kube-apiserver"]="${K8S_VERSION}"
