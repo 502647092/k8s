@@ -15,6 +15,7 @@ declare -A K8S_SERVER=(
 
 declare -A SERVER=(
 ["weaveworks/weave-kube"]="2.4.1"
+["weaveworks/weave-npc"]="2.4.1"
 ["rook/ceph"]="master"
 )
 
