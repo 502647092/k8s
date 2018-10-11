@@ -1,6 +1,6 @@
 SOURCE='docker.sixi.com/miaowoo'
 TARGET='k8s.gcr.io'
-K8S_VERSION='v1.11.3'
+K8S_VERSION='v1.12.1'
 
 declare -A K8S_SERVER=(
 ["kube-apiserver-amd64"]="${K8S_VERSION}"
