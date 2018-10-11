@@ -9,8 +9,8 @@ declare -A K8S_SERVER=(
 ["kube-proxy"]="${K8S_VERSION}"
 ["kubernetes-dashboard"]="v1.10.0"
 ["pause"]="3.1"
-["etcd-amd64"]="3.2.18"
-["coredns"]="1.1.3"
+["etcd-amd64"]="3.2.24"
+["coredns"]="1.2.2"
 )
 
 declare -A SERVER=(
