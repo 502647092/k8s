@@ -1,4 +1,4 @@
-SOURCE='docker.sixi.com/miaowoo'
+SOURCE='docker.sixi.com'
 TARGET='k8s.gcr.io'
 K8S_VERSION='v1.12.1'
 
