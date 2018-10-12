@@ -28,6 +28,7 @@ declare -A SERVER=(
 echo "Pull and Tag K8s Images..."
 
 for s in ${!K8S_SERVER[*]}; do
+    echo "=== Mirror ${s} ==="
     v=${K8S_SERVER[${s}]}
     docker pull "${SOURCE}/${s}:${v}"
     docker tag "${SOURCE}/${s}:${v}" "${TARGET}/${s}:${v}"
@@ -36,6 +37,7 @@ done
 echo "Pull and Tag Normal Images..."
 
 for s in ${!SERVER[*]}; do
+    echo "=== Mirror ${s} ==="
     v=${SERVER[${s}]}
     docker pull "${SOURCE}/${s}:${v}"
     docker tag "${SOURCE}/${s}:${v}" "${s}:${v}"
