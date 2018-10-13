@@ -1,46 +1,45 @@
 SOURCE='registry.sixi.com'
 USERNAME='anonymous'
 PASSWORD='anonymous'
-TARGET='k8s.gcr.io'
 K8S_VERSION='v1.12.1'
 
 docker login ${SOURCE} -u ${USERNAME} -p ${PASSWORD}
 
-declare -A K8S_SERVER=(
-["kube-apiserver"]="${K8S_VERSION}"
-["kube-controller-manager"]="${K8S_VERSION}"
-["kube-scheduler"]="${K8S_VERSION}"
-["kube-proxy"]="${K8S_VERSION}"
-["kubernetes-dashboard-amd64"]="v1.10.0"
-["metrics-server-amd64"]="v0.3.1"
-["heapster-amd64"]="v1.5.4"
-["pause"]="3.1"
-["etcd"]="3.2.24"
-["coredns"]="1.2.2"
+PRIVATE_IMAGES=(
+k8s.gcr.io/kube-apiserver:${K8S_VERSION}"
+k8s.gcr.io/kube-controller-manager:${K8S_VERSION}"
+k8s.gcr.io/kube-scheduler:${K8S_VERSION}"
+k8s.gcr.io/kube-proxy:${K8S_VERSION}"
+k8s.gcr.io/kubernetes-dashboard-amd64:v1.10.0"
+k8s.gcr.io/metrics-server-amd64:v0.3.1"
+k8s.gcr.io/heapster-amd64:v1.5.4"
+k8s.gcr.io/pause:3.1"
+k8s.gcr.io/etcd:3.2.24"
+k8s.gcr.io/coredns:1.2.2"
+gcr.io/kubernetes-helm/tiller:v2.11.0
 )
 
-declare -A SERVER=(
-["weaveworks/weave-kube"]="2.4.1"
-["weaveworks/weave-npc"]="2.4.1"
-["rook/ceph"]="master"
+IMAGES=(
+weaveworks/weave-kube:2.4.1"
+weaveworks/weave-npc:2.4.1"
+rook/ceph:master"
 )
 
-echo "Pull and Tag K8s Images..."
+echo "Pull and Tag Private Images..."
 
-for s in ${!K8S_SERVER[*]}; do
+for s in ${PRIVATE_IMAGES}; do
     echo "=== Mirror ${s} ==="
-    v=${K8S_SERVER[${s}]}
-    docker pull "${SOURCE}/${s}:${v}"
-    docker tag "${SOURCE}/${s}:${v}" "${TARGET}/${s}:${v}"
+    IMAGE=${s#*/}
+    docker pull "${SOURCE}/${IMAGE}"
+    docker tag "${SOURCE}/${IMAGE}" "${s}"
 done
 
-echo "Pull and Tag Normal Images..."
+echo "Pull and Tag Hub Images..."
 
-for s in ${!SERVER[*]}; do
+for s in ${IMAGES}; do
     echo "=== Mirror ${s} ==="
-    v=${SERVER[${s}]}
-    docker pull "${SOURCE}/${s}:${v}"
-    docker tag "${SOURCE}/${s}:${v}" "${s}:${v}"
+    docker pull "${SOURCE}/${s}"
+    docker tag "${SOURCE}/${s}" "${s}"
 done
 
 echo "Done !"
