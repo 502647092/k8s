@@ -27,7 +27,7 @@ rook/ceph:master
 
 echo "Pull and Tag Private Images..."
 
-for s in ${PRIVATE_IMAGES}; do
+for s in ${PRIVATE_IMAGES[*]}; do
     echo "=== Mirror ${s} ==="
     IMAGE=${s#*/}
     docker pull "${SOURCE}/${IMAGE}"
@@ -36,7 +36,7 @@ done
 
 echo "Pull and Tag Hub Images..."
 
-for s in ${IMAGES}; do
+for s in ${IMAGES[*]}; do
     echo "=== Mirror ${s} ==="
     docker pull "${SOURCE}/${s}"
     docker tag "${SOURCE}/${s}" "${s}"
