@@ -35,6 +35,13 @@ swapoff -a
 sed -i '/swap/s/^/#/' /etc/fstab
 EOF
 
+  echo "配置内核参数..."
+  ssh -Tq ${ip}<<EOF
+echo net.bridge.bridge-nf-call-iptables=1 >> /etc/sysctl.conf
+echo net.ipv4.ip_forward=1 >> /etc/sysctl.conf
+sysctl -p
+EOF
+
   echo "使用DockerMachine安装Docker..."
   docker-machine rm ${host} -f
   docker-machine --debug create --driver generic --generic-ip-address=${ip} ${host}
