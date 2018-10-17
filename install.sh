@@ -24,6 +24,7 @@ EOF
 systemctl stop firewalld.service
 systemctl disable firewalld.service
 swapoff -a
+sed -i '/swap/s/^/#/' /etc/fstab
 EOF
 
   echo "使用DockerMachine安装Docker..."
