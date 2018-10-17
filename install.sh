@@ -17,6 +17,13 @@ for host in ${!hosts[*]}; do
   ip=${hosts[${host}]}
   echo "开始安装 ${host} IP地址 ${ip} ..."
 
+  echo "连通性检测..."
+  
+  if [ -z "$(ssh -Tq root@${ip} echo networktest | grep networktest)" ]; then
+    echo "网络连接检测失败 跳过当前安装..."
+    continue;
+  fi
+
   echo "初始化基础环境 同步时间.."
   ssh -Tq ${ip}<<EOF
 cat > /etc/resolv.conf<<END
