@@ -16,10 +16,29 @@ hosts=(
 KUBE_VERSION='v1.12.1'
 
 install_docker_machine() {
-  if [ -z "$(which docker-machine | grep which)" ]; then
+  if [ -n "$(which docker-machine | grep which)" ]; then
     yum install -y wget
     wget -qO- https://blog.yumc.pw/attachment/script/shell/docker/machine.sh | bash
   fi
+}
+
+check_ssh_connect() {
+  local ip=${1}
+  ssh -o PasswordAuthentication=no -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null -Tq ${ip} echo ok > /dev/null
+  local code=$?
+  if [ "${code}" != "0"  ];then
+    echo "SSH Connect to ${ip} Error: ${code}"
+    exit 0
+  fi
+}
+
+set_163_yum_repo() {
+  local ip=$1
+  echo "Set Yum Repo To 163 Mirror.."
+  ssh -Tq ${ip}<<EOF
+wget -O/etc/yum.repos.d/CentOS-Base.repo http://mirrors.163.com/.help/CentOS6-Base-163.repo
+yum makecache
+EOF
 }
 
 init_base_env() {
@@ -27,7 +46,7 @@ init_base_env() {
   echo "Install Base Env Sync Time.."
   ssh -Tq ${ip}<<EOF
 cat > /etc/resolv.conf<<END
-nameserver 119.29.29.29
+nameserver 223.5.5.5
 END
 yum install -y wget
 wget -qO- https://blog.yumc.pw/attachment/script/shell/base.sh | bash
@@ -49,9 +68,15 @@ set_kernel_config() {
   local ip=$1
   echo "Config kernel Param Enable ipvs..."
   ssh -Tq ${ip}<<EOF
-echo net.ipv4.ip_forward=1 >> /etc/sysctl.conf
-echo net.bridge.bridge-nf-call-iptables=1 >> /etc/sysctl.conf
-echo net.bridge.bridge-nf-call-ip6tables=1 >> /etc/sysctl.conf
+check_sysctl_and_add() {
+    local conf=\${1}
+    if [ -z \$(cat /etc/sysctl.conf | grep "\${conf}") ]; then
+        echo \${conf} >> /etc/sysctl.conf
+    fi
+}
+check_sysctl_and_add net.ipv4.ip_forward=1
+check_sysctl_and_add net.bridge.bridge-nf-call-iptables=1
+check_sysctl_and_add net.bridge.bridge-nf-call-ip6tables=1
 sysctl -p
 models='ip_vs ip_vs_rr ip_vs_wrr ip_vs_sh'
 for model in \${models} ; do
@@ -63,50 +88,7 @@ EOF
 install_docker_form_yum() {
   local ip=${1}
   ssh -Tq ${ip}<<EOF
-cat > /etc/yum.repos.d/CentOS-Base.repo<<END
-# CentOS-Base.repo
-#
-# The mirror system uses the connecting IP address of the client and the
-# update status of each mirror to pick mirrors that are updated to and
-# geographically close to the client.  You should use this for CentOS updates
-# unless you are manually picking other mirrors.
-#
-# If the mirrorlist= does not work for you, as a fall back you can try the 
-# remarked out baseurl= line instead.
-#
-#
-[base]
-name=CentOS-$releasever - Base - 163.com
-#mirrorlist=http://mirrorlist.centos.org/?release=$releasever&arch=$basearch&repo=os
-baseurl=http://mirrors.163.com/centos/$releasever/os/$basearch/
-gpgcheck=1
-gpgkey=http://mirrors.163.com/centos/RPM-GPG-KEY-CentOS-7
-
-#released updates
-[updates]
-name=CentOS-$releasever - Updates - 163.com
-#mirrorlist=http://mirrorlist.centos.org/?release=$releasever&arch=$basearch&repo=updates
-baseurl=http://mirrors.163.com/centos/$releasever/updates/$basearch/
-gpgcheck=1
-gpgkey=http://mirrors.163.com/centos/RPM-GPG-KEY-CentOS-7
-
-#additional packages that may be useful
-[extras]
-name=CentOS-$releasever - Extras - 163.com
-#mirrorlist=http://mirrorlist.centos.org/?release=$releasever&arch=$basearch&repo=extras
-baseurl=http://mirrors.163.com/centos/$releasever/extras/$basearch/
-gpgcheck=1
-gpgkey=http://mirrors.163.com/centos/RPM-GPG-KEY-CentOS-7
-
-#additional packages that extend functionality of existing packages
-[centosplus]
-name=CentOS-$releasever - Plus - 163.com
-baseurl=http://mirrors.163.com/centos/$releasever/centosplus/$basearch/
-gpgcheck=1
-enabled=0
-gpgkey=http://mirrors.163.com/centos/RPM-GPG-KEY-CentOS-7
-END
-yum install -y docker
+yum install -y docker-*
 EOF
 }
 
@@ -130,7 +112,7 @@ install_kubeadm() {
   local ip=${1}
   echo "Install Kubeadm ..."
   ssh -Tq ${ip}<<EOF
-if [ -z "\$(which kubeadm | grep which)" ]; then
+if [ -n "\$(which kubeadm | grep which)" ]; then
 cat > /etc/yum.repos.d/kubernetes.repo<<END
 [kubernetes]
 name=Kubernetes
@@ -283,7 +265,8 @@ reset_cluster() {
 }
 
 init_cluster() {
-  local ip=${hosts[${master}]}
+  local master_info=${hosts[${master}]}
+  local ip=${master_info#*:}
   init_master ${ip}
   init_slave ${ip}
 }
@@ -321,6 +304,8 @@ install() {
   for host in ${hosts[*]}; do
     local node=${host%:*}
     local ip=${host#*:}
+    check_ssh_connect ${ip}
+    set_163_yum_repo ${ip}
     init_base_env ${ip}
     set_firewalld_and_swap ${ip}
     set_kernel_config ${ip}
