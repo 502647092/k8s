@@ -25,6 +25,7 @@ for s in ${PRIVATE_IMAGES[*]}; do
     IMAGE=$(echo ${s#*/} | sed s@/@_@g -)
     docker pull "${SOURCE}/${IMAGE}"
     docker tag "${SOURCE}/${IMAGE}" "${s}"
+    docker rmi "${SOURCE}/${IMAGE}"
 done
 
 echo "Done !"
