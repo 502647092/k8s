@@ -22,7 +22,7 @@ echo "Pull and Tag Private Images..."
 
 for s in ${PRIVATE_IMAGES[*]}; do
     echo "=== Mirror ${s} ==="
-    IMAGE=$(echo ${s#*/} | sed s@/@_@g -)
+    IMAGE=$(echo ${s} | sed s@/@_@g -)
     docker pull "${SOURCE}/${IMAGE}"
     docker tag "${SOURCE}/${IMAGE}" "${s}"
     docker rmi "${SOURCE}/${IMAGE}"
